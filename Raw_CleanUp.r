@@ -1,4 +1,4 @@
-
+#####READ IN THE DATA#####
   
   #  Choose directory
   
@@ -55,7 +55,7 @@
 
   BIG <- bind_rows(lista)
 
-  ##### Select only necesary columns
+  # Select only necesary columns
   #the necessary columns depend on what we're doing with the data!!!
   #if we're only counting: labels
   #if we're analyzing parameters: labels, duration, f1:f50
@@ -72,11 +72,11 @@
   
   ##### Correctly name the columns
   
-  names(BIG) <- c("label", "duration", "start.time", paste0("f",1:50), "file")
+  names(BIG) <- c("label", "duration", "start.time", paste0("f",1:50), "file.name")
   
   #Then put the file column at the front
   
-  BIG <- select(.data = BIG, file, label:f50)
+  BIG <- select(.data = BIG, file.name, label:f50)
   
   
   ##### before counting, first, manage FAINT and noise, - harm, - harmx, 
@@ -106,7 +106,7 @@
   
   
   
-  ### Counting ALL CALLS ####
+  #### Counting ALL CALLS ####
   #apply(expand.grid(c(1,2,3), c("flat", "short")), 1, paste, collapse=" ")
   #str_count(example, "flat")
   
@@ -216,7 +216,11 @@ correct_labels <- function(dataframe){
   }
   
   
-  
+  ##make a list of the categories
+  allowed.categories <- c("flat", "flat-z", "flat-mz", "short", "short-su", "short-sd",
+                          "short-ur", "short-dr", "short-c", "complex", "upward ramp",
+                          "downward ramp", "step up", "step down", "multi-step", "multi-step-s",
+                          "trill", "trill-c", "trill-f", "inverted-U", "unclear") 
   
   
   #now count!
@@ -231,6 +235,7 @@ count_total <-  function(dataframe, categories.allowed){
     
     out <- unlist(li)
     
+    #took this out so that function returns a vector!! easier to manipulate into data.frames that I want...
     out <- data.frame(categories.allowed=categories.allowed,
                       total.counts = out)
     
@@ -238,20 +243,56 @@ count_total <-  function(dataframe, categories.allowed){
     return(out)
   }
   
-  
-  
-  
-  
+
+# by factor
+count_list <- by(data = BIG, INDICES = BIG$file.name, FUN = function(x) count_total(x, allowed.categories))
+
+count_frame <- do.call(rbind, count_list)
+
+# Get the rows to be a formal column and erase them
+count_frame$file.name <- row.names(count_frame)
+row.names(count_frame) <- NULL
+
+# Clean the files (we remove the ending in point and numbers, .[0-9]+$ pattern) 
+
+count_frame$file.name <- str_replace(count_frame$file.name, pattern = ".[0-9]+$", replacement =  "" )
+
+# we update with counts by file and counts by 
+count_frame <- count_frame %>% group_by(file.name) %>%
+  mutate(total.filecounts=sum(total.counts), rel.filecount=total.counts/total.filecounts)
+
+# stacked barplot for totals
+count_frame %>% ggplot(aes(file.name, rel.filecount, fill=categories.allowed)) + geom_bar(stat='identity') 
+
+# by file, total counts 
+
+count_frame %>% group_by(file.name) %>%
+  summarise(total.filecounts = unique(total.filecounts)) %>%
+  ggplot(aes(file.name, total.filecounts)) + geom_bar(stat='identity', fill="white", color="black")
+
+
+# by file, total counts, colored by call type
+count_frame %>% ggplot(aes(file.name, total.counts, fill=categories.allowed)) + geom_bar(stat='identity')
+
+
+# correlation between number of calls and call type
+
+
+
+
+# write.csv(BIG, "AASDJSAIDjSDJDJJDJDJDJD.csv", row.names = FALSE)
+
+
+
+
+
+
   ### to filter only the categories ####
   
     
   ##### Get rid of all the overlap
   # Figure a way to count
-  ##make a list of the categories
-  allowed.categories <- c("flat", "flat-z", "flat-mz", "short", "short-su", "short-sd",
-                          "short-ur", "short-dr", "short-c", "complex", "upward ramp",
-                          "downward ramp", "step up", "step down", "multi-step", "multi-step-s",
-                          "trill", "trill-c", "trill-f", "inverted-U", "unclear") 
+ 
   #need to make count.flag
   
   #so this is designating which labels are single calls and which labels are overlapping calls
