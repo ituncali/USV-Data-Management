@@ -10,6 +10,9 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
   
   mypath <- choose.dir(getwd(),"Choose a Folder")
   
+  # DATA SHOULD GO INTO A FOLDER WITHIN THIS PROJECT "/data"
+  
+  
   # List of files, fix here if pattern needed
   
   myfiles <- paste0(mypath,'\\',list.files(path = mypath))
@@ -74,12 +77,13 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
  BIG$flag <- ifelse(grepl(pattern = "[0-9]+ [a-z]+", x = BIG$label), "subset.me", "leave.alone")
   
   needs.fixing <- filter(BIG, flag=="subset.me")
+# -----
+ # Here is where solutions for correct_labels and bind that list and doing something with the multiple counts will come
+# ----
+
   
- 
   
-  
- 
-  
+    
   ##make a list of the categories
   allowed.categories <- c("flat", "flat-z", "flat-mz", "short", "short-su", "short-sd",
                           "short-ur", "short-dr", "short-c", "complex", "upward ramp",
@@ -88,26 +92,9 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
   
   
   #now count!
-count_total <-  function(dataframe, categories.allowed){
-    
-    
-    y <- dataframe$label
-    
-    
-    li <- lapply(categories.allowed, function(q) sum(str_count(y,q)))
-    
-    
-    out <- unlist(li)
-    
-    #took this out so that function returns a vector!! easier to manipulate into data.frames that I want...
-    out <- data.frame(categories.allowed=categories.allowed,
-                      total.counts = out)
-    
 
-    return(out)
-  }
+  source("src/count_total.R")
   
-
 # by factor
 count_list <- by(data = BIG, INDICES = BIG$file.name, FUN = function(x) count_total(x, allowed.categories))
 
