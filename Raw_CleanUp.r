@@ -1,3 +1,9 @@
+
+# Loading packages
+
+my_loader(c("dplyr","ggplot2","stringr","tidyr"))
+
+
 #####READ IN THE DATA#####
   
   #  Choose directory
@@ -8,67 +14,33 @@
   
   myfiles <- paste0(mypath,'\\',list.files(path = mypath))
   
-  # Takes a while if coming from excel, be patient!
-  #readxl
-  
-  myRead <- function(list.element){
-    
-    rawraw <- read_xlsx(list.element, sheet=1)
-    
-    #need to put something in here that adds a "file" column to each data set!!
-    
-    rawraw <- mutate(rawraw, 
-                     file = stringr::str_extract(string = list.element, 
-                                                 pattern = "T[0-9]+"))
-    
-    return(rawraw)
-    
-  }
-  
-  #takes a list of files from a folder and reads them one by one....
+  # Read data into list
+  # takes a list of files from a folder and reads them one by one....
   
   read.files <- lapply(myfiles, myRead)
   
- just_calls  <- function(dataframe){
+  # Get Rid of spurious things in the file, get "just the calls" :)
   
-   # Labels get contaminated with NA or numbers
-   # Be aware numbers will be read as characters
-   # Rationale of the filter built in just_calls function
-   
-   # get rid of NAs
-   
-    dataframe <- dataframe[!is.na(dataframe$label),]
-    
-    # We coerce to numbers because labels get contaminated with numbers
-    
-    flag <- as.numeric(dataframe$label)
-    
-    # now we want to keep all the things that are NAs in this flag
-    
-    dataframe <- dataframe[is.na(flag),]
-    
-    return(dataframe)
-      
-  }
+  source("just_calls.R")
   
+  # Warning about NAs introduced by coercion is normal
   lista <- lapply(read.files, just_calls)
-
+  
+  # Bind the things together into a BIG BIG list :)
   BIG <- bind_rows(lista)
 
   # Select only necesary columns
-  #the necessary columns depend on what we're doing with the data!!!
-  #if we're only counting: labels
-  #if we're analyzing parameters: labels, duration, f1:f50
-  #if we're analyzing behavior: labels, start time, duration, f1:f50
-  #i'll just do the most possible for now...
-  #having start time will 
-  #ACTUALLY... why not just keep most of the columns for now... 10-16-17
+  # the necessary columns depend on what we're doing with the data!!!
+  # if we're only counting: labels
+  # if we're analyzing parameters: labels, duration, f1:f50
+  # if we're analyzing behavior: labels, start time, duration, f1:f50
+  # i'll just do the most possible for now...
+  # having start time will 
+  # ACTUALLY... why not just keep most of the columns for now... 10-16-17
   
-  #onlycolumnsnecessary <- c(2:4,7:56)
-  #BIG <- BIG[,onlycolumnsnecessary]
   
-  byecolumns <- c(1,5,6)
-  BIG <- BIG[,-byecolumns]
+  # cleanup for some weird columns that we don't care about
+  BIG <- select(BIG, -`#`, -`end time`, -`peak ampl(mean)`)
   
   ##### Correctly name the columns
   
@@ -81,37 +53,31 @@
   
   ##### before counting, first, manage FAINT and noise, - harm, - harmx, 
   
-  #tidyr::separate(BIG, col = label,
-  #                into = c("label", "extra_tag"),
-  #                sep = " - Matias - ")
-  
-  # Regular expressions in R
-  
-  
-  #BIG$label <- gsub(pattern = " NOISE", replacement = "", x = BIG$label)
-  #do this to everything or put things.to.erase in pattern
-  
   thing.to.erase <- c(" FAINT| NOISE| - harm| - harmx| - fragment")
   
   BIG$label <- gsub(pattern = thing.to.erase, replacement = "", x = BIG$label)
   
-  ######
-  #pru <- c("hola", "me", 'mea', "meaw")
-  ## Examples to play with
-  #> gsub( c("me|a|h"), "", pru)
-  #[1] "ol" ""   ""   "w" 
-  #> gsub( c("me|a| h"), "", pru)
-  #[1] "hol" ""    ""    "w"  
-  #######
-  
-  
-  
+
   #### Counting ALL CALLS ####
   #apply(expand.grid(c(1,2,3), c("flat", "short")), 1, paste, collapse=" ")
   #str_count(example, "flat")
   
   #before count_total, want to change "3 flat" to "flat flat flat", etc...
-correct_labels <- function(dataframe){
+
+ 
+ #### Overlapping calls ####
+  
+  # We will separate overlapping of the type x flat y short
+  # from all other calls
+  
+ # we make a flag to subset the ones that need to be fixed  
+ BIG$flag <- ifelse(grepl(pattern = "[0-9]+ [a-z]+", x = BIG$label), "subset.me", "leave.alone")
+  
+  needs.fixing <- filter(BIG, flag=="subset.me")
+  
+  
+  
+  correct_labels <- function(dataframe){
   
   keep.running <- TRUE
   
@@ -126,7 +92,7 @@ correct_labels <- function(dataframe){
       number =   as.numeric(str_extract(string = raw.extr,
                                         pattern = "[0-9]+")),
       call.type = str_extract(string = raw.extr, pattern = "[a-z]+"),
-      replica = rep_my_char(call.type, number, collapse = TRUE),
+      replica =  rep_my_char(call.type, number, collapse = TRUE),
       label = str_replace(string = label, pattern = raw.extr, 
                           replacement = replica)
       )
@@ -147,7 +113,9 @@ correct_labels <- function(dataframe){
     # Break if eveything there is na (label would be a character(0))
     
     if(identical(TOY$label, character(0))) break()
-      
+    
+    print(while.counter)
+
     TOY <- TOY %>%
       mutate( 
         raw.extr = str_extract(string = label, pattern = "[0-9]+ [a-z]+"),

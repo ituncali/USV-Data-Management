@@ -1,6 +1,7 @@
 # USV-Data-Management
 Scripts and Functions  for Organizing, Cleaning and Analyzing  USV Data
 
-#TODO
+# TODO
 
-* Do something about this folder because it is sad :(
+* Rbind correct_labels list output
+* DO something about duplicated outpus for several rounds of correct_lab
