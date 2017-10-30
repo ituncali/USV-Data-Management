@@ -128,7 +128,8 @@ count_frame %>% ggplot(aes(file.name, total.counts, fill=categories.allowed)) + 
 
 # correlation between number of calls and call type
 
-
+count_frame %>% ggplot(aes(total.filecounts, rel.filecount, group=categories.allowed, color=categories.allowed)) +
+  geom_point() + geom_line()
 
 
 # write.csv(BIG, "AASDJSAIDjSDJDJJDJDJDJD.csv", row.names = FALSE)
