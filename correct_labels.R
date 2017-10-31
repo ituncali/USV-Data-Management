@@ -2,6 +2,7 @@
 # it needs a helper function called rep_my_char, which is a mapper
 # it will produce a list that needs to be bound
 
+
 correct_labels <- function(dataframe){
   
   keep.running <- TRUE
@@ -25,6 +26,12 @@ correct_labels <- function(dataframe){
   # Apped to list
   
   li[[1]] <- qq
+  
+  # Very first time running
+  li[[1]]$while.counter <- 1
+  
+  # start the while counter
+  
   while.counter <- 2
   
   # Replicate data out so we can overwrite within the loop
@@ -39,7 +46,6 @@ correct_labels <- function(dataframe){
     
     if(identical(TOY$label, character(0))) break()
     
-    print(while.counter)
     
     TOY <- TOY %>%
       mutate( 
@@ -51,6 +57,12 @@ correct_labels <- function(dataframe){
         label = str_replace(string = label, pattern = raw.extr, 
                             replacement = replica)
       ) 
+    
+    
+    print(paste("finished cleaning round number", while.counter))
+    
+    
+    TOY$while.counter <- while.counter
     
     # save it on the counter
     li[[while.counter]] <- TOY

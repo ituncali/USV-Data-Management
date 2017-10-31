@@ -1,6 +1,6 @@
 
 # Loading packages
-
+source("my_loader.R")
 my_loader(c("dplyr","ggplot2","stringr","tidyr"))
 
 
@@ -20,6 +20,7 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
   # Read data into list
   # takes a list of files from a folder and reads them one by one....
   
+  source("myRead.R")
   read.files <- lapply(myfiles, myRead)
   
   # Get Rid of spurious things in the file, get "just the calls" :)
@@ -76,19 +77,25 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
  # we make a flag to subset the ones that need to be fixed  
  BIG$flag <- ifelse(grepl(pattern = "[0-9]+ [a-z]+", x = BIG$label), "subset.me", "leave.alone")
   
-  needs.fixing <- filter(BIG, flag=="subset.me")
+  needs_fixing <- filter(BIG, flag=="subset.me")
+
 # -----
  # Here is where solutions for correct_labels and bind that list and doing something with the multiple counts will come
 # ----
-
-  
-  
-    
+    source("rep_my_char.R")
+    source("correct_labels.R")
   ##make a list of the categories
   allowed.categories <- c("flat", "flat-z", "flat-mz", "short", "short-su", "short-sd",
                           "short-ur", "short-dr", "short-c", "complex", "upward ramp",
                           "downward ramp", "step up", "step down", "multi-step", "multi-step-s",
                           "trill", "trill-c", "trill-f", "inverted-U", "unclear") 
+  #Run the function
+  new_labels <- correct_labels(needs_fixing)
+  
+  #then, replace those rows that were originally subsetted with new stuff
+  
+  BIG <- rbind(filter(BIG, flag=="leave.alone"),new_labels)
+  
   
   
   #now count!
