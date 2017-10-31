@@ -11,6 +11,12 @@ correct_labels <- function(dataframe){
   li <- list()
   
   # Very first time we do it from dataframe
+  #we are looking first for one or more then one number [0-9]+ followed by one space and then letters [a-z]+
+  #then immediately followed by a dash (-) and more letters [a-z]+ (an example of this would be "3 flat-z")
+  #then AFTER that the "or" option is looking for one or more numbers [0-9]+ followed by one space and then
+  #letters [a-z]+
+  #there should be NO SPACES between the "or" symbol | and the patterns
+  
   
   qq <- dataframe %>%
     mutate( 
