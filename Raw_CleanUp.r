@@ -1,6 +1,6 @@
 
 # Loading packages
-source("my_loader.R")
+source("src/my_loader.R")
 my_loader(c("dplyr","ggplot2","stringr","tidyr"))
 
 
@@ -20,12 +20,12 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
   # Read data into list
   # takes a list of files from a folder and reads them one by one....
   
-  source("myRead.R")
+  source("src/myRead.R")
   read.files <- lapply(myfiles, myRead)
   
   # Get Rid of spurious things in the file, get "just the calls" :)
   
-  source("just_calls.R")
+  source("src/just_calls.R")
   
   # Warning about NAs introduced by coercion is normal
   lista <- lapply(read.files, just_calls)
@@ -85,8 +85,8 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
 # -----
  # Here is where solutions for correct_labels and bind that list and doing something with the multiple counts will come
 # ----
-    source("rep_my_char.R")
-    source("correct_labels.R")
+    source("src/rep_my_char.R")
+    source("src/correct_labels.R")
   
   #Run the function
   new_labels <- correct_labels(needs_fixing)
