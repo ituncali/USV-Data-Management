@@ -32,6 +32,9 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
   
   # Bind the things together into a BIG BIG list :)
   BIG <- bind_rows(lista)
+  
+  #Add unique.id column
+  BIG <- mutate(BIG, unique.id = c(1:nrow(BIG)))
 
   # Select only necesary columns
   # the necessary columns depend on what we're doing with the data!!!
@@ -48,11 +51,11 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
   
   ##### Correctly name the columns
   
-  names(BIG) <- c("label", "duration", "start.time", paste0("f",1:50), "file.name")
+  names(BIG) <- c("label", "duration", "start.time", paste0("f",1:50), "file.name", "unique.id")
   
   #Then put the file column at the front
   
-  BIG <- select(.data = BIG, file.name, label:f50)
+  BIG <- select(.data = BIG, unique.id, file.name, label:f50)
   
   
   ##### before counting, first, manage FAINT and noise, - harm, - harmx, 
@@ -84,23 +87,39 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
 # ----
     source("rep_my_char.R")
     source("correct_labels.R")
-  ##make a list of the categories
-  allowed.categories <- c("flat", "flat-z", "flat-mz", "short", "short-su", "short-sd",
-                          "short-ur", "short-dr", "short-c", "complex", "upward ramp",
-                          "downward ramp", "step up", "step down", "multi-step", "multi-step-s",
-                          "trill", "trill-c", "trill-f", "inverted-U", "unclear") 
+  
   #Run the function
   new_labels <- correct_labels(needs_fixing)
+  #so this will return a list with indices of the rounds... we want a dataframe
+  
+  new_labels <- bind_rows(new_labels)
+  
+  #now we want to group by unique.id and filter by the largest while.counter
+  
+  new_labels <- new_labels %>%
+    group_by(unique.id) %>%
+    filter(while.counter==max(while.counter))
+  
+  #then get rid of extra columns
+  
+  new_labels <- select(new_labels, -`raw.extr`, -`number`, -`call.type`, -`replica`, -`while.counter`)
   
   #then, replace those rows that were originally subsetted with new stuff
   
-  BIG <- rbind(filter(BIG, flag=="leave.alone"),new_labels)
-  
+  BIG <- bind_rows(filter(BIG, flag=="leave.alone"),new_labels)
+  #then remove flag column
+  BIG <- select(BIG, -`flag`)
   
   
   #now count!
 
   source("src/count_total.R")
+  
+  ##make a list of the categories
+  allowed.categories <- c("flat", "flat-z", "flat-mz", "short", "short-su", "short-sd",
+                          "short-ur", "short-dr", "short-c", "complex", "upward ramp",
+                          "downward ramp", "step up", "step down", "multi-step", "multi-step-s",
+                          "trill", "trill-c", "trill-f", "inverted-U", "unclear") 
   
 # by factor
 count_list <- by(data = BIG, INDICES = BIG$file.name, FUN = function(x) count_total(x, allowed.categories))

@@ -14,10 +14,10 @@ correct_labels <- function(dataframe){
   
   qq <- dataframe %>%
     mutate( 
-      raw.extr = str_extract(string = label, pattern = "[0-9]+ [a-z]+"),
+      raw.extr = str_extract(string = label, pattern="[0-9]+ [a-z]+(-[a-z]+)|[0-9]+ [a-z]+"),
       number =   as.numeric(str_extract(string = raw.extr,
                                         pattern = "[0-9]+")),
-      call.type = str_extract(string = raw.extr, pattern = "[a-z]+"),
+      call.type = str_extract(string = raw.extr, pattern="[a-z]+(-[a-z]+)|[a-z]+"),
       replica =  rep_my_char(call.type, number, collapse = TRUE),
       label = str_replace(string = label, pattern = raw.extr, 
                           replacement = replica)
@@ -49,10 +49,10 @@ correct_labels <- function(dataframe){
     
     TOY <- TOY %>%
       mutate( 
-        raw.extr = str_extract(string = label, pattern = "[0-9]+ [a-z]+"),
+        raw.extr = str_extract(string = label, pattern="[0-9]+ [a-z]+(-[a-z]+)|[0-9]+ [a-z]+"),
         number =   as.numeric(str_extract(string = raw.extr,
                                           pattern = "[0-9]+")),
-        call.type = str_extract(string = raw.extr, pattern = "[a-z]+"),
+        call.type = str_extract(string = raw.extr, pattern="[a-z]+(-[a-z]+)|[a-z]+"),
         replica = rep_my_char(call.type, number, collapse = TRUE),
         label = str_replace(string = label, pattern = raw.extr, 
                             replacement = replica)
@@ -74,8 +74,6 @@ correct_labels <- function(dataframe){
     if(while.counter > 10) break
     
   }
-  
-  
   
   return(li)
   

@@ -8,7 +8,8 @@ myRead <- function(list.element){
   
   rawraw <- mutate(rawraw, 
                    file = stringr::str_extract(string = list.element, 
-                                               pattern = "T[0-9]+"))
+                                               pattern = "T[0-9]+")
+                   )
   
   return(rawraw)
   
