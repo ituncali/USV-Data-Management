@@ -1,7 +1,7 @@
 
 # Loading packages
 source("src/my_loader.R")
-my_loader(c("dplyr","ggplot2","stringr","tidyr"))
+my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
 
 
 #####READ IN THE DATA#####
@@ -122,6 +122,7 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr"))
                           "trill", "trill-c", "trill-f", "inverted-U", "unclear") 
   
 # by factor
+  
 count_list <- by(data = BIG, INDICES = BIG$file.name, FUN = function(x) count_total(x, allowed.categories))
 
 count_frame <- do.call(rbind, count_list)
@@ -159,6 +160,34 @@ count_frame %>% ggplot(aes(total.filecounts, rel.filecount, group=categories.all
 
 
 # write.csv(BIG, "AASDJSAIDjSDJDJJDJDJDJD.csv", row.names = FALSE)
+
+#histogram of time bins
+#first add strain column
+#for mom_anesth...... need to figure out a way to figure this out....
+source(src/strain_match.R)
+which_are_WK <- c("T0000102","T0000109","T0000138","T0000199","T0000203","T0000233","T0000308")
+plot_frame <- strain_match(BIG,which_are_WK)
+
+myplot <- ggplot(plot_frame, aes(start.time, fill=strain))
+
+myplot + geom_histogram(bins = 60, position='dodge', color='white') + geom_vline(xintercept = 300)
+
+myplot + geom_histogram(bins = 60, color='black') +
+  
+  facet_wrap(~strain, nrow=2) +
+  
+  geom_vline(xintercept = c(150,300,450,600)) + theme_classic()
+
+myplot + geom_density(alpha=0.5) + facet_wrap(~strain, nrow=2)
+
+
+
+myplot + geom_histogram(bins = 60, color='black') +
+  
+  facet_wrap(file.name~strain, nrow=2) +
+  
+  geom_vline(xintercept = c(150,300,450,600)) + theme_classic()
+
 
 
 
