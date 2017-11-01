@@ -4,17 +4,14 @@ Scripts and Functions  for Organizing, Cleaning and Analyzing  USV Data
 # TODO
 
  * centralize all the code 
- * make some sort of SOP/workflow of all the code
- * fix dplyr version....
  * numerating code names!!!!
  * think about getting functions for the graphs working
- * put summarize_me into workflow
- * change interpolateme, etc. to accomodate columns from the output of Raw_CleanUp.R
- * ("unique.id"  "file.name"  "label"      "duration"   "start.time")
+ * Decide which workflow summarize_me should go into
  * Replicate PCA
  * liu 2007
- * make repository for the classifier and name the new repository "classifier" or something...
  * code stats analysis in stats script Inferential_Stats.r
  * in graph parts, figure out exactly what graphs I want to do
+ * Make .Rmd file so that the exploratory analysis is knit, self-contained and serves as some sort of SOP/workflow of all the code
  * add in pattern reader to Raw_Cleaner that says "save automatically into output folder..."
+ * update the place from where the input functions of the next step of the pipeline will read from (copy output data from this repo to the input data of the next step of the pipeline)
  
