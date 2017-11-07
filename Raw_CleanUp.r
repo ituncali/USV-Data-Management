@@ -158,14 +158,30 @@ count_frame %>% ggplot(aes(file.name, total.counts, fill=categories.allowed)) + 
 count_frame %>% ggplot(aes(total.filecounts, rel.filecount, group=categories.allowed, color=categories.allowed)) +
   geom_point() + geom_line()
 
+#stacked bar plots faceted by strain
+plot_frame_1 <- strain_match(count_frame,which_are_WK)
+plot_frame_1 %>% ggplot(aes(file.name, total.counts, fill=categories.allowed)) + 
+  geom_bar(stat='identity') + 
+  facet_wrap(~strain, scale = "free")
+
+#to simply put sd to one side and wk to the other
+plot_frame %>% ggplot(aes(interaction(file.name, strain), total.counts, fill=categories.allowed)) + 
+  geom_bar(stat='identity')
 
 # write.csv(BIG, "AASDJSAIDjSDJDJJDJDJDJD.csv", row.names = FALSE)
 
 #histogram of time bins
 #first add strain column
 #for mom_anesth...... need to figure out a way to figure this out....
-source(src/strain_match.R)
+source("src/strain_match.R")
+  ## for MOTHER-LITTER INTERACTION RECORDINGS
+which_are_WK <- c("T0000091", "T0000096", "T0000124", "T0000185", "T0000190", "T0000228", "T0000303")
+  ## for MOM ANESTHETIZED RECORDINGS
 which_are_WK <- c("T0000102","T0000109","T0000138","T0000199","T0000203","T0000233","T0000308")
+  ## for MSX-3 RECORDINGS
+which_are_WK <- c("T0000291","T0000292","T0000297","T0000058","T0000060","T0000061")
+  ## for WKY behavioral baseline controls
+which_are_WK <- c("T0000001", "T0000020", "T0000025", "T0000027", "T0000029")
 plot_frame <- strain_match(BIG,which_are_WK)
 
 myplot <- ggplot(plot_frame, aes(start.time, fill=strain))
@@ -181,10 +197,10 @@ myplot + geom_histogram(bins = 60, color='black') +
 myplot + geom_density(alpha=0.5) + facet_wrap(~strain, nrow=2)
 
 
-
+#strain before ~file.name so that SDs are all on top and WKs are all on bottom
 myplot + geom_histogram(bins = 60, color='black') +
   
-  facet_wrap(file.name~strain, nrow=2) +
+  facet_wrap(strain~file.name, nrow=2) +
   
   geom_vline(xintercept = c(150,300,450,600)) + theme_classic()
 
