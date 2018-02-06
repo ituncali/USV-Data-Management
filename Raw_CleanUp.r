@@ -60,18 +60,16 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   
   ##### before counting, first, manage FAINT and noise, - harm, - harmx, 
   
-  thing.to.erase <- c(" FAINT| NOISE| - harm| - harmx| - fragment")
+  thing.to.erase <- c(" FAINT| NOISE| - harm| - harmx| - fragment| harmx| harm")
   
   BIG$label <- gsub(pattern = thing.to.erase, replacement = "", x = BIG$label)
+  #also need to change chirps to short-c
+  BIG$label <- gsub(pattern = "chirp", replacement = "short-c", x = BIG$label)
   
 
   #### Counting ALL CALLS ####
-  #apply(expand.grid(c(1,2,3), c("flat", "short")), 1, paste, collapse=" ")
-  #str_count(example, "flat")
-  
   #before count_total, want to change "3 flat" to "flat flat flat", etc...
 
- 
  #### Overlapping calls ####
   
   # We will separate overlapping of the type x flat y short
@@ -110,10 +108,40 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   #then remove flag column
   BIG <- select(BIG, -`flag`)
   
+  #add strain column here because classifier/interpolate workflow needs it!!!!
+  #CHOOSE WHICH CONDITION YOU ARE CURRENTLY CLEANING!!
+  source("src/strain_match.R")
+  ## for MOTHER-LITTER INTERACTION RECORDINGS
+  which_are_WK <- c("T0000091", "T0000096", "T0000124", "T0000185", "T0000190", "T0000228", "T0000303")
+  ## for MOM ANESTHETIZED RECORDINGS
+  which_are_WK <- c("T0000102","T0000109","T0000138","T0000199","T0000203","T0000233","T0000308")
+  ## for MSX-3 RECORDINGS
+  which_are_WK <- c("T0000291","T0000292", "T0000293","T0000297","T0000058","T0000060","T0000061")
+  ## for WKY behavioral baseline controls
+  which_are_WK <- c("T0000001", "T0000020", "T0000025", "T0000027", "T0000029")
+  ## for male isolated pup recordings
+  which_are_WK <- c("T0000093","T0000098","T0000125","T0000186","T0000192","T0000229","T0000304")
+  ## for female isolated pup recordings
+  which_are_WK <- c("T0000092","T0000097","T0000126","T0000187","T0000191","T0000230","T0000305")
+  ## for vehicle SD vs MSX3 SD
+  which_are_WK <- c("T0000388","T0000389","T0000390","T0000396")
+  ## for all exp2 recs
+  which_are_WK <- c("T0000291","T0000292", "T0000293","T0000297","T0000058","T0000060","T0000061",
+                    "T0000388","T0000406","T0000407", "T0000408", "T0000411")
+  
+  BIG <- strain_match(BIG,which_are_WK)
+  # write.csv(BIG, "AASDJSAIDjSDJDJJDJDJDJD.csv", row.names = FALSE)
+  
+  #ADD TREATMENT
+  act1 <- BIG %>% mutate(treatment = ifelse(file.name %in% c("T0000388","T0000406","T0000407","T0000389",
+                                                             "T0000390","T0000396","T0000403","T0000404",
+                                                             "T0000409", "T0000410", "T0000408"), 
+                                            "VEH", "MSX3"))
   
   #now count!
 
   source("src/count_total.R")
+  
   
   ##make a list of the categories
   allowed.categories <- c("flat", "flat-z", "flat-mz", "short", "short-su", "short-sd",
@@ -160,29 +188,24 @@ count_frame %>% ggplot(aes(total.filecounts, rel.filecount, group=categories.all
 
 #stacked bar plots faceted by strain
 plot_frame_1 <- strain_match(count_frame,which_are_WK)
+plot_frame_1 <- plot_frame_1 %>% mutate(treatment = ifelse(file.name %in% c("T0000388","T0000406","T0000407","T0000389",
+                                                                            "T0000390","T0000396","T0000403","T0000404",
+                                                                            "T0000409", "T0000410", "T0000408"), 
+                                          "VEH", "MSX3"))
 plot_frame_1 %>% ggplot(aes(file.name, total.counts, fill=categories.allowed)) + 
   geom_bar(stat='identity') + 
-  facet_wrap(~strain, scale = "free")
+  facet_wrap(~strain+treatment, scale = "free_x")
 
 #to simply put sd to one side and wk to the other
 plot_frame %>% ggplot(aes(interaction(file.name, strain), total.counts, fill=categories.allowed)) + 
   geom_bar(stat='identity')
 
-# write.csv(BIG, "AASDJSAIDjSDJDJJDJDJDJD.csv", row.names = FALSE)
+
 
 #histogram of time bins
 #first add strain column
-#for mom_anesth...... need to figure out a way to figure this out....
-source("src/strain_match.R")
-  ## for MOTHER-LITTER INTERACTION RECORDINGS
-which_are_WK <- c("T0000091", "T0000096", "T0000124", "T0000185", "T0000190", "T0000228", "T0000303")
-  ## for MOM ANESTHETIZED RECORDINGS
-which_are_WK <- c("T0000102","T0000109","T0000138","T0000199","T0000203","T0000233","T0000308")
-  ## for MSX-3 RECORDINGS
-which_are_WK <- c("T0000291","T0000292","T0000297","T0000058","T0000060","T0000061")
-  ## for WKY behavioral baseline controls
-which_are_WK <- c("T0000001", "T0000020", "T0000025", "T0000027", "T0000029")
-plot_frame <- strain_match(BIG,which_are_WK)
+plot_frame <- BIG
+
 
 myplot <- ggplot(plot_frame, aes(start.time, fill=strain))
 
@@ -200,7 +223,7 @@ myplot + geom_density(alpha=0.5) + facet_wrap(~strain, nrow=2)
 #strain before ~file.name so that SDs are all on top and WKs are all on bottom
 myplot + geom_histogram(bins = 60, color='black') +
   
-  facet_wrap(strain~file.name, nrow=2) +
+  facet_wrap(strain+treatment~file.name, nrow=2) +
   
   geom_vline(xintercept = c(150,300,450,600)) + theme_classic()
 
