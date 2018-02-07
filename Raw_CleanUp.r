@@ -132,7 +132,8 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   which_are_WK <- c("T0000388","T0000389","T0000390","T0000396")
   ## for all exp2 recs
   which_are_WK <- c("T0000291","T0000292", "T0000293","T0000297","T0000058","T0000060","T0000061",
-                    "T0000388","T0000406","T0000407", "T0000408", "T0000411")
+                    "T0000388","T0000406","T0000407", "T0000408", "T0000411","T0000412","T0000414",
+                    "T0000415")
   
   BIG <- strain_match(BIG,which_are_WK)
   # write.csv(BIG, "AASDJSAIDjSDJDJJDJDJDJD.csv", row.names = FALSE)
@@ -140,7 +141,8 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   #ADD TREATMENT
   act1 <- BIG %>% mutate(treatment = ifelse(file.name %in% c("T0000388","T0000406","T0000407","T0000389",
                                                              "T0000390","T0000396","T0000403","T0000404",
-                                                             "T0000409", "T0000410", "T0000408"), 
+                                                             "T0000409", "T0000410", "T0000408","T0000412",
+                                                             "T0000413","T0000414","T0000415"), 
                                             "VEH", "MSX3"))
   
   #now count!
@@ -195,7 +197,8 @@ count_frame %>% ggplot(aes(total.filecounts, rel.filecount, group=categories.all
 plot_frame_1 <- strain_match(count_frame,which_are_WK)
 plot_frame_1 <- plot_frame_1 %>% mutate(treatment = ifelse(file.name %in% c("T0000388","T0000406","T0000407","T0000389",
                                                                             "T0000390","T0000396","T0000403","T0000404",
-                                                                            "T0000409", "T0000410", "T0000408"), 
+                                                                            "T0000409", "T0000410", "T0000408","T0000412",
+                                                                            "T0000413","T0000414","T0000415"), 
                                           "VEH", "MSX3"))
 plot_frame_1 %>% ggplot(aes(file.name, total.counts, fill=categories.allowed)) + 
   geom_bar(stat='identity') + 
