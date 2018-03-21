@@ -60,7 +60,7 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   
   ##### before counting, first, manage FAINT and noise, - harm, - harmx, 
   
-  thing.to.erase <- c(" FAINT| NOISE| - harmonic| - harmonicx| harmonic| harmonicx| - harmonix| - harm| - harmx| - fragment| harmx| harm| NOIS")
+  thing.to.erase <- c(" FAINT| NOISE|NOISE|X| - harmonic| - harmonicx| harmonic| harmonicx| - harmonix| - harm| - harmx| - fragment| harmx| harm| NOIS")
   
   BIG$label <- gsub(pattern = thing.to.erase, replacement = "", x = BIG$label)
   #also need to change chirps to short-c
@@ -92,7 +92,7 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   
   BIG$label <- gsub(pattern = "multi-step -s", replacement = "multi-step-s", x = BIG$label)
 
-  
+  BIG$label <- tolower(BIG$label)
   
   #### Counting ALL CALLS ####
   #before count_total, want to change "3 flat" to "flat flat flat", etc...
