@@ -60,20 +60,35 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   
   ##### before counting, first, manage FAINT and noise, - harm, - harmx, 
   
-  thing.to.erase <- c(" FAINT| NOISE| - harm| - harmx| - fragment| harmx| harm| NOIS")
+  thing.to.erase <- c(" FAINT| NOISE| - harmonic| - harmonicx| harmonic| harmonicx| - harmonix| - harm| - harmx| - fragment| harmx| harm| NOIS")
   
   BIG$label <- gsub(pattern = thing.to.erase, replacement = "", x = BIG$label)
   #also need to change chirps to short-c
   BIG$label <- gsub(pattern = "chirp", replacement = "short-c", x = BIG$label)
   #I found these issues way later on as well... causing problems with graphing and counting
   BIG$label <- gsub(pattern = "inverted- U", replacement = "inverted-u", x = BIG$label)
+  
   BIG$label <- gsub(pattern = "inverted - U", replacement = "inverted-u", x = BIG$label)
+  
+  #needed to add this one because there's a 2 inverted U label and it was messing up correct_labels
+  BIG$label <- gsub(pattern = "inverted U", replacement = "inverted-u", x = BIG$label)
+  
   #need to put $ in next one or else it gets rid of all - in flat-z and flat-mz
   BIG$label <- gsub(pattern = "flat-$", replacement = "flat", x = BIG$label)
+  
   BIG$label <- gsub(pattern = "inverted -u", replacement = "inverted-u", x = BIG$label)
+  
   BIG$label <- gsub(pattern = "inverted inverted U", replacement = "inverted-u inverted-u", x = BIG$label)
+  
   BIG$label <- gsub(pattern = "flatz", replacement = "flat-z", x = BIG$label)
+  
   BIG$label <- gsub(pattern = "flatmz", replacement = "flat-mz", x = BIG$label)
+  
+  BIG$label <- gsub(pattern = "short-short-c", replacement = "short short-c", x = BIG$label)
+  
+  BIG$label <- gsub(pattern = "shorts", replacement = "short", x = BIG$label)
+  
+  BIG$label <- gsub(pattern = "multi-step -s", replacement = "multi-step-s", x = BIG$label)
 
   
   
