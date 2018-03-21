@@ -73,6 +73,8 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   #needed to add this one because there's a 2 inverted U label and it was messing up correct_labels
   BIG$label <- gsub(pattern = "inverted U", replacement = "inverted-u", x = BIG$label)
   
+  BIG$label <- gsub(pattern = "inverted-U", replacement = "inverted-u", x = BIG$label)
+  
   #need to put $ in next one or else it gets rid of all - in flat-z and flat-mz
   BIG$label <- gsub(pattern = "flat-$", replacement = "flat", x = BIG$label)
   
