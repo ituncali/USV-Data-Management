@@ -65,7 +65,12 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   BIG$label <- gsub(pattern = thing.to.erase, replacement = "", x = BIG$label)
   #also need to change chirps to short-c
   BIG$label <- gsub(pattern = "chirp", replacement = "short-c", x = BIG$label)
-  
+  #I found these issues way later on as well... causing problems with graphing and counting
+  BIG$label <- gsub(pattern = "inverted- U", replacement = "inverted-u", x = BIG$label)
+  BIG$label <- gsub(pattern = "inverted - U", replacement = "inverted-u", x = BIG$label)
+  BIG$label <- gsub(pattern = "flat-", replacement = "flat", x = BIG$label)
+  BIG$label <- gsub(pattern = "inverted -u", replacement = "inverted-u", x = BIG$label)
+  BIG$label <- gsub(pattern = "inverted inverted U", replacement = "inverted-u inverted-u", x = BIG$label)
 
   #### Counting ALL CALLS ####
   #before count_total, want to change "3 flat" to "flat flat flat", etc...
