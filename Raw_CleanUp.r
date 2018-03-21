@@ -68,10 +68,15 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   #I found these issues way later on as well... causing problems with graphing and counting
   BIG$label <- gsub(pattern = "inverted- U", replacement = "inverted-u", x = BIG$label)
   BIG$label <- gsub(pattern = "inverted - U", replacement = "inverted-u", x = BIG$label)
-  BIG$label <- gsub(pattern = "flat-", replacement = "flat", x = BIG$label)
+  #need to put $ in next one or else it gets rid of all - in flat-z and flat-mz
+  BIG$label <- gsub(pattern = "flat-$", replacement = "flat", x = BIG$label)
   BIG$label <- gsub(pattern = "inverted -u", replacement = "inverted-u", x = BIG$label)
   BIG$label <- gsub(pattern = "inverted inverted U", replacement = "inverted-u inverted-u", x = BIG$label)
+  BIG$label <- gsub(pattern = "flatz", replacement = "flat-z", x = BIG$label)
+  BIG$label <- gsub(pattern = "flatmz", replacement = "flat-mz", x = BIG$label)
 
+  
+  
   #### Counting ALL CALLS ####
   #before count_total, want to change "3 flat" to "flat flat flat", etc...
 
