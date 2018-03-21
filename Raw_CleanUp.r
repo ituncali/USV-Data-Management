@@ -60,7 +60,7 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   
   ##### before counting, first, manage FAINT and noise, - harm, - harmx, 
   
-  thing.to.erase <- c(" FAINT| NOISE| - harm| - harmx| - fragment| harmx| harm")
+  thing.to.erase <- c(" FAINT| NOISE| - harm| - harmx| - fragment| harmx| harm| NOIS")
   
   BIG$label <- gsub(pattern = thing.to.erase, replacement = "", x = BIG$label)
   #also need to change chirps to short-c
@@ -116,31 +116,15 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   #add strain column here because classifier/interpolate workflow needs it!!!!
   #CHOOSE WHICH CONDITION YOU ARE CURRENTLY CLEANING!!
   source("src/strain_match.R")
-  ## for MOTHER-LITTER INTERACTION RECORDINGS
-  which_are_WK <- c("T0000091", "T0000096", "T0000124", "T0000185", "T0000190", "T0000228", "T0000303")
-  ## for MOM ANESTHETIZED RECORDINGS
-  which_are_WK <- c("T0000102","T0000109","T0000138","T0000199","T0000203","T0000233","T0000308")
-  ## for MOM ALONE RECORDINGS
-  which_are_WK <- c("T0000089","T0000094","T0000122","T0000183","T0000188","T0000226","T0000301")
-  ## for PUPS SEPARATED RECORDINGS
-  which_are_WK <- c("T0000090","T0000095","T0000123","T0000184","T0000189","T0000227","T0000302")
+  #found a better way...
+  library(reshape2)
+  file.name.key.unmelted <- read.csv(file.choose(),stringsAsFactors = F)
   
-  ## for MSX-3 RECORDINGS
-  which_are_WK <- c("T0000291","T0000292", "T0000293","T0000297","T0000058","T0000060","T0000061")
-  ## for WKY behavioral baseline controls
-  which_are_WK <- c("T0000001", "T0000020", "T0000025", "T0000027", "T0000029")
-  ## for male isolated pup recordings
-  which_are_WK <- c("T0000093","T0000098","T0000125","T0000186","T0000192","T0000229","T0000304")
-  ## for female isolated pup recordings
-  which_are_WK <- c("T0000092","T0000097","T0000126","T0000187","T0000191","T0000230","T0000305")
-  ## for vehicle SD vs MSX3 SD
-  which_are_WK <- c("T0000388","T0000389","T0000390","T0000396")
-  ## for all exp2 recs
-  which_are_WK <- c("T0000291","T0000292", "T0000293","T0000297","T0000058","T0000060","T0000061",
-                    "T0000388","T0000406","T0000407", "T0000408", "T0000411","T0000412","T0000414",
-                    "T0000415")
+  file.name.key <- melt(data=file.name.key.unmelted,id = c("strain","rat.id"),
+                        variable.name="recording",value.name = "file.name")
   
-  BIG <- strain_match(BIG,which_are_WK)
+  BIG <- left_join(BIG,file.name.key)
+  
   # write.csv(BIG, "AASDJSAIDjSDJDJJDJDJDJD.csv", row.names = FALSE)
   
   #ADD TREATMENT
