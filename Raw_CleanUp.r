@@ -91,6 +91,8 @@ my_loader(c("dplyr","ggplot2","stringr","tidyr", "xlsx"))
   BIG$label <- gsub(pattern = "shorts", replacement = "short", x = BIG$label)
   
   BIG$label <- gsub(pattern = "multi-step -s", replacement = "multi-step-s", x = BIG$label)
+  
+  BIG$label <- gsub(pattern = "trill-$", replacement = "trill", x = BIG$label)
 
   BIG$label <- tolower(BIG$label)
   
